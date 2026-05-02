@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Voice Calculator</title>
+
+<style>
+    body {
+        font-family: Arial;
+        background: #121212;
+        color: white;
+        text-align: center;
+        padding-top: 50px;
+    }
+
+    .calculator {
+        background: #1e1e1e;
+        padding: 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    input {
+        width: 250px;
+        height: 40px;
+        font-size: 18px;
+        margin-bottom: 10px;
+        text-align: right;
+        padding: 5px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    button {
+        width: 60px;
+        height: 40px;
+        margin: 5px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn { background: #333; color: white; }
+    .equal { background: #00c853; }
+    .voice { background: #ff1744; width: 130px; }
+</style>
+</head>
+
+<body>
+
+<h1>🎤 Voice Calculator</h1>
+
+<div class="calculator">
+    <input type="text" id="display" readonly><br>
+
+    <button class="btn" onclick="press('7')">7</button>
+    <button class="btn" onclick="press('8')">8</button>
+    <button class="btn" onclick="press('9')">9</button>
+    <button class="btn" onclick="press('/')">÷</button><br>
+
+    <button class="btn" onclick="press('4')">4</button>
+    <button class="btn" onclick="press('5')">5</button>
+    <button class="btn" onclick="press('6')">6</button>
+    <button class="btn" onclick="press('*')">×</button><br>
+
+    <button class="btn" onclick="press('1')">1</button>
+    <button class="btn" onclick="press('2')">2</button>
+    <button class="btn" onclick="press('3')">3</button>
+    <button class="btn" onclick="press('-')">-</button><br>
+
+    <button class="btn" onclick="press('0')">0</button>
+    <button class="btn" onclick="clearDisplay()">C</button>
+    <button class="equal" onclick="calculate()">=</button>
+    <button class="btn" onclick="press('+')">+</button><br>
+
+    <button class="voice" onclick="startVoice()">🎤 Speak</button>
+</div>
+
+<script>
+let display = document.getElementById("display");
+
+// Button press
+function press(val) {
+    display.value += val;
+}
+
+// Clear
+function clearDisplay() {
+    display.value = "";
+}
+
+// Calculate
+function calculate() {
+    try {
+        let result = eval(display.value);
+        display.value = result;
+        speak(result);
+    } catch {
+        alert("Invalid Input");
+    }
+}
+
+// Voice output
+function speak(text) {
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+}
+
+// Voice input
+function startVoice() {
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        let voiceText = event.results[0][0].transcript.toLowerCase();
+        console.log("You said:", voiceText);
+
+        // Convert words to symbols
+        voiceText = voiceText
+            .replace(/plus/g, "+")
+            .replace(/minus/g, "-")
+            .replace(/into|multiply/g, "*")
+            .replace(/divide/g, "/");
+
+        display.value = voiceText;
+        calculate();
+    };
+
+    recognition.onerror = function() {
+        alert("Voice error");
+    };
+}
+</script>
+
+</body>
+</html>
